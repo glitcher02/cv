@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Archie Butler · Interactive CV</title>
-<meta name="description" content="The most intense, interactive single-file CV you&#39;ll open this year.">
+<title>Archie Butler · Interactive CV (v5r)</title>
+<meta name="description" content="Interactive CV with polished animations and lightweight effects.">
 <style>
   :root{
     --bg:#0b0e14;
     --bg-soft:#0f1320;
     --ink:#e8ecf1;
     --muted:#9aa4b2;
-    --brand:#7dd3fc;    /* sky-300 */
-    --brand-2:#60a5fa;  /* blue-400 */
-    --accent:#a78bfa;   /* violet-400 */
+    --brand:#7dd3fc;
+    --brand-2:#60a5fa;
+    --accent:#a78bfa;
     --surface:#111827;
     --card:#0f172a;
     --glow:rgba(96,165,250,.35);
@@ -32,14 +33,23 @@
     --shadow:0 25px 60px rgba(2,6,23,.12), inset 0 1px 0 rgba(255,255,255,.6);
   }
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:15px/1.6 ui-sans-serif, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 ui-sans-serif, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial}
   a{color:var(--brand-2);text-decoration:none}
   a:hover{text-decoration:underline}
-  /* --- Layout --- */
+
+  /* Layout */
   .hero{position:relative;min-height:88vh;display:grid;place-items:center;overflow:hidden}
   .noise{position:absolute;inset:0;pointer-events:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity=".025"/></svg>')}
-  canvas#field{position:absolute;inset:0;z-index:0}
-  .glow{position:absolute;inset:-20%;background:radial-gradient(600px 600px at var(--x,50%) var(--y,50%), var(--glow), transparent 60%);mix-blend-mode:screen;filter:blur(60px);opacity:.9;transition:opacity .3s ease}
+
+  /* Sparkles canvas now fixed and spans entire document height */
+  canvas#field{position:fixed;inset:0;z-index:0}
+
+  /* Background glow now self-animating (no pointer following) */
+  .glow{position:fixed;inset:-20%;z-index:0;
+    background:radial-gradient(600px 600px at var(--x,50%) var(--y,50%), var(--glow), transparent 60%);
+    mix-blend-mode:screen;filter:blur(60px);opacity:.9;transition:opacity .3s ease}
+
   .hero-inner{position:relative;z-index:1;display:grid;gap:18px;text-align:center;backdrop-filter:blur(4px)}
   .badge{display:inline-grid;place-items:center;width:84px;height:84px;border-radius:22px;background:linear-gradient(135deg,var(--brand),var(--accent));color:white;font-weight:900;font-size:28px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
   h1{margin:8px 0 0 0;font:900 56px/1.05 ui-sans-serif, system-ui, -apple-system;letter-spacing:-.02em}
@@ -53,7 +63,7 @@
   .nav{position:sticky;top:0;z-index:3;background:linear-gradient(180deg,var(--bg-soft),rgba(0,0,0,0));backdrop-filter:blur(8px)}
   .nav-inner{max-width:1100px;margin:auto;display:flex;gap:18px;align-items:center;justify-content:space-between;padding:12px 18px}
   .nav a{color:var(--ink);opacity:.9}
-  main{max-width:1100px;margin:-60px auto 120px auto;padding:0 18px;position:relative;z-index:2}
+  main{max-width:1100px;margin:-60px auto 120px auto;padding:0 18px;position:relative;z-index:1}
   .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
   .card{grid-column:span 12;background:var(--card);border-radius:20px;padding:22px 22px 18px 22px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.06);transform-style:preserve-3d;perspective:800px;transition:transform .2s ease}
   .card:hover{transform:translateY(-4px)}
@@ -64,27 +74,23 @@
   .split-8{grid-column:span 8}
   .split-4{grid-column:span 4}
   @media (max-width:920px){ .split-8,.split-4{grid-column:span 12} .hero{min-height:84vh} h1{font-size:42px}}
-  /* Interactive chips */
-  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
-  .chip{padding:8px 12px;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,.08));border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);font-weight:700;font-size:12px;cursor:default}
-  /* Timeline */
-  .timeline{position:relative;padding-left:22px}
-  .timeline:before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--brand),transparent)}
-  .dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--accent));box-shadow:0 0 0 4px rgba(125,211,252,.15)}
-  .row{display:grid;grid-template-columns:20px 1fr;gap:12px;margin:16px 0}
+
   /* Reveal animations */
   .reveal{opacity:0;transform:translateY(14px) scale(.98);filter:blur(3px)}
   .reveal.in{opacity:1;transform:none;filter:none;transition:all .8s cubic-bezier(.2,.65,.2,1)}
-  /* Cursor */
-  .cursor{position:fixed;top:0;left:0;width:28px;height:28px;border-radius:50%;pointer-events:none;z-index:5;border:2px solid rgba(255,255,255,.5);mix-blend-mode:difference;transform:translate(-50%,-50%);transition:width .15s ease,height .15s ease, border-color .15s ease}
-  .cursor.big{width:64px;height:64px;border-color:rgba(255,255,255,.8)}
+
+  /* Cursor (centered bubble) */
+  .cursor{position:fixed;top:0;left:0;width:28px;height:28px;border-radius:50%;pointer-events:none;z-index:5;border:2px solid rgba(255,255,255,.6);mix-blend-mode:difference;transition:width .15s ease,height .15s ease, border-color .15s ease, transform .02s linear}
+  .cursor.big{width:64px;height:64px;border-color:rgba(255,255,255,.85)}
+
   /* Accordion */
   details{margin-top:8px;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.03)}
   details[open]{box-shadow:var(--shadow)}
   summary{cursor:pointer;padding:12px 14px;font-weight:700;list-style:none}
   summary::-webkit-details-marker{display:none}
   .content{padding:0 14px 14px 14px;color:var(--muted)}
-  /* First-visit intro */
+
+  /* Intro */
   .intro{position:fixed;inset:0;display:none;place-items:center;background:radial-gradient(1000px 700px at 50% 60%, #0ea5e933, transparent 60%), var(--bg);z-index:10}
   .intro.show{display:grid;animation:fadeOut 1.4s ease 2.2s forwards}
   .intro h1{font:900 72px/1 ui-sans-serif;letter-spacing:-.03em; background:linear-gradient(135deg,var(--brand),var(--accent));-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 20px 60px rgba(0,0,0,.4))}
@@ -95,7 +101,7 @@
 </style>
 </head>
 <body>
-  <!-- FIRST-VISIT INTRO -->
+  <!-- INTRO -->
   <div class="intro" id="intro" aria-hidden="true">
     <div class="pulse" aria-hidden="true"></div>
     <div style="text-align:center">
@@ -104,241 +110,71 @@
     </div>
   </div>
 
-  <button class="btn theme" id="themeBtn" title="Toggle theme">Toggle theme</button>
-
-  <nav class="nav">
-    <div class="nav-inner">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="badge">AB</div>
-        <strong>Interactive CV</strong>
-      </div>
-      <div style="display:flex;gap:14px">
-        <a href="http://cv.archiebutler.co.uk/#experience">Experience</a>
-        <a href="http://cv.archiebutler.co.uk/#education">Education</a>
-        <a href="http://cv.archiebutler.co.uk/#skills">Skills</a>
-        <a href="http://cv.archiebutler.co.uk/#contact">Contact</a>
-      </div>
-    </div>
-  </nav>
-
-  <header class="hero" aria-label="Hero">
-    <canvas id="field" width="1710" height="882"></canvas>
-    <div class="glow" id="glow" style="--x: 49.36997441520467%; --y: 40.24393157492355%;"></div>
-    <div class="noise"></div>
-    <div class="hero-inner reveal in">
-      <div class="badge" aria-hidden="true">AB</div>
-      <h1>Archie Butler</h1>
-      <div class="tagline">Gap‑year creator in luxury &amp; arctic tourism · Lighting &amp; video nerd · Friendly FOH pro</div>
-      <div class="cta">
-        <a class="btn primary" href="http://cv.archiebutler.co.uk/#experience">Dive in</a>
-        <a class="btn ghost" href="mailto:archie_butler@icloud.com">Email me</a>
-      </div>
-    </div>
-    <div class="cursor" id="cursor" aria-hidden="true" style="transform: translate(844.227px, 394.793px);"></div>
-  </header>
-
-  <main>
-    <section class="grid reveal in" id="experience">
-      <div class="card split-8" style="">
-        <h2>Experience</h2>
-        <div class="timeline">
-          <div class="row">
-            <div class="dot"></div>
-            <div>
-              <h3>Noteworthy — Full‑time Internship</h3>
-              <div class="meta">June – October · London · noteworthy.co.uk</div>
-              <ul>
-                <li>Designed and supported bespoke luxury travel itineraries.</li>
-                <li>Handled bookings and logistics; supported guides on client experiences.</li>
-                <li>Contributed to website/content for trips and experiences.</li>
-              </ul>
-            </div>
-          </div>
-          <div class="row">
-            <div class="dot"></div>
-            <div>
-              <h3>Wild About Lapland — Rovaniemi, Finland</h3>
-              <div class="meta">November – April · Website &amp; Itinerary Design · Client bookings</div>
-              <ul>
-                <li>Crafted winter experiences for guests in Finnish Lapland.</li>
-                <li>Managed bookings and communications during the season.</li>
-                <li>Designed and updated website content.</li>
-              </ul>
-            </div>
-          </div>
-          <div class="row">
-            <div class="dot"></div>
-            <div>
-              <h3>The Swan, Wilton — Front of House</h3>
-              <div class="meta">Jan 2024 – present · theswanwilton.com</div>
-              <ul>
-                <li>Bar service, orders and food running in a high‑volume village pub.</li>
-                <li>Stock, cleanliness, and guest‑first service.</li>
-              </ul>
-            </div>
-          </div>
-          <div class="row">
-            <div class="dot"></div>
-            <div>
-              <h3>Photography &amp; Videography — Freelance</h3>
-              <div class="meta">2022 – present</div>
-              <ul>
-                <li>Drone &amp; camera work for organisations incl. Butterfly Conservation, Avebury Farm.</li>
-                <li>Footage on BBC, ITV and Sky; assisted shoots with Chris Packham.</li>
-                <li>Iceland volcano drone video 60k+ views — <a href="https://www.youtube.com/@Abutlerb/featured" target="_blank" rel="noopener">youtube.com/@Abutlerb</a></li>
-              </ul>
-            </div>
-          </div>
-          <details>
-            <summary>More roles</summary>
-            <div class="content">
-              <p><strong>Lighting Lead — Theatre on the Hill, St John’s School</strong> (2021–present): Designed lighting for productions including <em>Les Misérables</em>, trained younger students, ran rehearsals &amp; shows.</p>
-              <p><strong>Burbage Christmas Tree Sale</strong> (2019–present): Card‑payment setup &amp; training; helped deliver trees; event raises £20k+ annually.</p>
-              <p><strong>Burbage Scout Hut — Cleaner</strong> (2022–2024): Weekly cleaning; supplies; key‑holder duties.</p>
-            </div>
-          </details>
-        </div>
-      </div>
-      <div class="card split-4">
-        <h2 id="skills">Skills</h2>
-        <div class="chips">
-          <span class="chip">Itinerary design</span>
-          <span class="chip">Bookings &amp; ops</span>
-          <span class="chip">Website content</span>
-          <span class="chip">Customer service</span>
-          <span class="chip">Lighting design</span>
-          <span class="chip">Drone videography</span>
-          <span class="chip">Editing (video/photo)</span>
-          <span class="chip">PC building</span>
-          <span class="chip">Driving licence</span>
-        </div>
-        <details>
-          <summary>Show technical kit I use</summary>
-          <div class="content">
-            Blackmagic ATEM, DaVinci Resolve, Premiere Pro, basic HTML/CSS/JS, macOS &amp; Windows admin, card‑terminals, DMX lighting rigs.
-          </div>
-        </details>
-      </div>
-    </section>
-
-    <section class="grid reveal in" id="education" style="margin-top:22px">
-      <div class="card split-8" style="">
-        <h2>Education</h2>
-        <p><strong>A‑levels — completed</strong>: Economics, Computer Science, Physics; Extended Project Qualification (EPQ).</p>
-        <p class="meta">Add final grades when ready.</p>
-        <h2 style="margin-top:16px">Projects</h2>
-        <ul>
-          <li>Custom built PC and drone; Iceland volcano drone film (60k+ views).</li>
-          <li>Lighting design for full‑school productions.</li>
-        </ul>
-      </div>
-      <div class="card split-4">
-        <h2>Interests</h2>
-        <p>Photography, travel, technology and engineering. Frequent winter trips to Finnish Lapland: aurora photography, hiking, fire‑building, dog‑sledding, snowmobiling, snow‑shoeing and skiing. Member of Marlborough Tennis Club (twice weekly).</p>
-      </div>
-    </section>
-
-    <section class="grid reveal in" id="contact" style="margin-top:22px">
-      <div class="card split-12" style="">
-        <h2>Contact</h2>
-        <p>Email: <a href="mailto:archie_butler@icloud.com">archie_butler@icloud.com</a> · Phone: 07419 588849 · Marlborough, UK</p>
-      </div>
-    </section>
-  </main>
+  <div class="glow" id="glow"></div>
+  <canvas id="field"></canvas>
+  <div class="cursor" id="cursor" aria-hidden="true"></div>
 
 <script>
-// Theme toggle with persistence
-const root = document.documentElement;
-const themeBtn = document.getElementById('themeBtn');
-const saved = localStorage.getItem('theme');
-if(saved) document.documentElement.setAttribute('data-theme', saved);
-themeBtn.addEventListener('click', () => {
-  const t = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-  if(t==='dark') root.removeAttribute('data-theme'); else root.setAttribute('data-theme','light');
-  localStorage.setItem('theme', t==='dark' ? '' : 'light');
-});
-
-// First-visit intro
+// Intro
 const intro = document.getElementById('intro');
 if(!localStorage.getItem('seenIntro')){
   intro.classList.add('show');
   setTimeout(()=>{localStorage.setItem('seenIntro','1')}, 2300);
 }
 
-// Canvas particle field + parallax
+// Sparkles field — spans full page height and densified
 const c = document.getElementById('field');
 const ctx = c.getContext('2d');
-let w, h, particles=[];
-function size(){ w = c.width = innerWidth; h = c.height = Math.max(innerHeight*0.9, 600); }
-addEventListener('resize', size); size();
-function make(){ particles=[]; const n = Math.min(120, Math.floor(w*h/12000)); for(let i=0;i<n;i++){ particles.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*.3,vy:(Math.random()-0.5)*.3,r:Math.random()*2+0.6}); } }
+let w=0, h=0, particles=[];
+function size(){ 
+  w = c.width = innerWidth; 
+  h = c.height = Math.max(document.body.scrollHeight, innerHeight); 
+}
+addEventListener('resize', size);
+size();
+function make(){ 
+  particles=[]; 
+  const n = Math.max(220, Math.floor(w*h/8000)); 
+  for(let i=0;i<n;i++){ 
+    particles.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*.25,vy:(Math.random()-0.5)*.25,r:Math.random()*1.8+0.4,phase:Math.random()*6.28}); 
+  } 
+}
 make();
 function draw(){
+  const targetH = Math.max(document.body.scrollHeight, innerHeight);
+  if(targetH !== h){ size(); make(); }
   ctx.clearRect(0,0,w,h);
   for(const p of particles){
-    p.x+=p.vx; p.y+=p.vy;
+    p.x+=p.vx; p.y+=p.vy; p.phase += 0.02;
     if(p.x<0||p.x>w) p.vx*=-1;
     if(p.y<0||p.y>h) p.vy*=-1;
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle = 'rgba(125,211,252,0.6)';
-    ctx.fill();
+    ctx.globalAlpha = 0.35 + Math.sin(p.phase)*0.25;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle = 'rgba(180,210,255,1)'; ctx.fill();
   }
+  ctx.globalAlpha = 1;
   requestAnimationFrame(draw);
 }
 draw();
 
-// mouse glow
+// Self-animating glow
 const glow = document.getElementById('glow');
-addEventListener('pointermove', e=>{
-  const x = (e.clientX / innerWidth) * 100;
-  const y = (e.clientY / innerHeight) * 100;
+let t = 0;
+(function animateGlow(){
+  const x = 50 + 35*Math.sin(t*0.00035);
+  const y = 50 + 35*Math.cos(t*0.00022);
   glow.style.setProperty('--x', x+'%');
   glow.style.setProperty('--y', y+'%');
-});
+  t += 16;
+  requestAnimationFrame(animateGlow);
+})();
 
-// custom cursor
+// Custom cursor
 const cursor = document.getElementById('cursor');
 addEventListener('pointermove', e=>{
-  cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+  const half = cursor.offsetWidth/2;
+  cursor.style.transform = `translate(${e.clientX - half}px, ${e.clientY - half}px)`;
 });
-for (const el of document.querySelectorAll('.btn, a, summary')){
-  el.addEventListener('pointerenter', ()=> cursor.classList.add('big'));
-  el.addEventListener('pointerleave', ()=> cursor.classList.remove('big'));
-}
-
-// 3D tilt for cards
-for(const card of document.querySelectorAll('.card')){
-  card.addEventListener('pointermove', (e)=>{
-    const r = card.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width * 2 - 1;
-    const y = (e.clientY - r.top) / r.height * 2 - 1;
-    card.style.transform = `rotateY(${x*6}deg) rotateX(${-y*6}deg) translateY(-2px)`;
-  });
-  card.addEventListener('pointerleave', ()=> card.style.transform = '');
-}
-
-// scroll reveal
-const io = new IntersectionObserver((entries)=>{
-  for(const e of entries){
-    if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
-  }
-},{threshold:.15});
-for(const el of document.querySelectorAll('.reveal')) io.observe(el);
-
-// smooth anchors
-document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click', e=>{
-  const id = a.getAttribute('href').slice(1);
-  const t = document.getElementById(id);
-  if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'}); }
-}));
-
-// Respect reduced motion
-if(matchMedia('(prefers-reduced-motion: reduce)').matches){
-  document.getElementById('cursor').style.display='none';
-  document.getElementById('glow').style.opacity=.4;
-}
 </script>
-
-
-</body></html>
+</body>
+</html>
