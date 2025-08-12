@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Archie Butler · Interactive CV (v5r.3 responsive)</title>
+<title>Archie Butler · Interactive CV (v5r.4 responsive+hamburger)</title>
 <meta name="description" content="Interactive CV with floating glow, full-page sparkles, and responsive mobile navigation.">
 <style>
   :root{
@@ -43,7 +43,6 @@
   @media (max-width: 640px){
     .glow{filter:blur(40px); opacity:.7}
   }
-
   .noise{position:fixed; inset:0; pointer-events:none; z-index:1;
     background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity=".025"/></svg>')
   }
@@ -68,16 +67,31 @@
   .menu a{color:var(--ink); opacity:.9; padding:6px 8px; border-radius:8px}
   .menu a:focus-visible{outline:2px solid var(--brand-2); outline-offset:2px}
 
-  /* Hamburger */
-  .hamburger{display:none; width:40px; height:40px; border-radius:10px; border:1px solid rgba(255,255,255,.12);
-    background:rgba(255,255,255,.06); color:var(--ink); align-items:center; justify-content:center; cursor:pointer}
-  .hamburger:focus-visible{outline:2px solid var(--brand-2); outline-offset:2px}
+  /* Hamburger (SVG morph) */
+  .hamburger{
+    display:none; width:44px; height:44px; border-radius:12px; border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.06); color:var(--ink); align-items:center; justify-content:center; cursor:pointer;
+    transition:transform .15s ease;
+  }
+  .hamburger:active{transform:scale(.98)}
+  .hamburger svg{width:24px; height:24px; overflow:visible}
+  .bar{
+    fill:none; stroke:currentColor; stroke-width:2.5; stroke-linecap:round; transition:transform .25s ease, opacity .2s ease;
+  }
+  /* Morph to X when open */
+  .hamburger.open .bar1{transform:translateY(6px) rotate(45deg)}
+  .hamburger.open .bar2{opacity:0}
+  .hamburger.open .bar3{transform:translateY(-6px) rotate(-45deg)}
+
+  /* Mobile dropdown panel (slide) */
   .mobile-panel{
-    display:none; position:relative; z-index:2; background:var(--card);
+    display:block; overflow:hidden; max-height:0; opacity:0; transform:translateY(-8px);
+    transition:max-height .35s ease, opacity .35s ease, transform .35s ease;
+    position:relative; z-index:2; background:var(--card);
     border-top:1px solid rgba(255,255,255,.08); border-bottom:1px solid rgba(255,255,255,.06);
     box-shadow:var(--shadow);
   }
-  .mobile-panel.open{display:block}
+  .mobile-panel.open{max-height:280px; opacity:1; transform:translateY(0)}
   .mobile-links{display:flex; flex-direction:column; gap:8px; padding:12px 16px}
   .mobile-links a{padding:10px 12px; border-radius:10px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06)}
 
@@ -87,6 +101,7 @@
     .hamburger{display:flex}
   }
 
+  /* Hero */
   .hero{position:relative; min-height:88vh; display:grid; place-items:center; overflow:hidden}
   .hero-inner{position:relative; z-index:2; display:grid; gap:18px; text-align:center; backdrop-filter:blur(3px)}
   h1{margin:8px 0 0 0; font:900 56px/1.05 ui-sans-serif,system-ui,-apple-system; letter-spacing:-.02em}
@@ -98,13 +113,13 @@
   .btn:hover{transform:translateY(-2px)}
   .btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:white; border:none}
   .btn.ghost{background:transparent}
-
   @media (max-width: 640px){
     h1{font-size:38px}
     .badge{width:64px; height:64px}
     .cta .btn{padding:11px 16px}
   }
 
+  /* Content */
   main{max-width:1100px; margin:-60px auto 120px auto; padding:0 16px; position:relative; z-index:2}
   .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:20px}
   .card{grid-column:span 12; background:var(--card); border-radius:20px; padding:22px 22px 18px 22px;
@@ -179,7 +194,11 @@
         <a href="#contact">Contact</a>
       </div>
       <button class="hamburger" id="hamburger" aria-controls="mobilePanel" aria-expanded="false" aria-label="Open menu">
-        ☰
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path class="bar bar1" d="M4 6H20"></path>
+          <path class="bar bar2" d="M4 12H20"></path>
+          <path class="bar bar3" d="M4 18H20"></path>
+        </svg>
       </button>
     </div>
     <div class="mobile-panel" id="mobilePanel">
@@ -319,20 +338,20 @@
 <script>
 (function(){
   const $ = (id)=> document.getElementById(id);
-
-  /* Touch/desktop detection */
   const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
-  /* Mobile menu */
+  /* Mobile menu: slide + SVG morph */
   const burger = $('hamburger'), panel = $('mobilePanel');
   if(burger && panel){
     burger.addEventListener('click', ()=>{
       const open = panel.classList.toggle('open');
+      burger.classList.toggle('open', open);
       burger.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
     // Close panel when clicking a link
     panel.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=>{
       panel.classList.remove('open');
+      burger.classList.remove('open');
       burger.setAttribute('aria-expanded','false');
     }));
   }
@@ -347,11 +366,8 @@
   /* Sparkles — responsive density + wrap-around + smooth height tracking */
   const c=$('field'), ctx=c.getContext('2d');
   let w=0, h=0, parts=[];
-  function targetDims(){
-    return { W: innerWidth, H: Math.max(document.documentElement.scrollHeight, innerHeight) };
-  }
   function setSize(){
-    const {W,H}=targetDims();
+    const W=innerWidth, H=Math.max(document.documentElement.scrollHeight, innerHeight);
     if(W!==w || H!==h){
       w=c.width=W; h=c.height=H;
       const density = isTouch ? 9000 : 6000; // fewer on phones
@@ -370,7 +386,7 @@
       p.x = (p.x + p.vx + w) % w;
       p.y = (p.y + p.vy + h) % h;
       p.phase += 0.02;
-      ctx.globalAlpha = 0.30 + Math.sin(p.phase)*0.22; // softer on all devices
+      ctx.globalAlpha = 0.30 + Math.sin(p.phase)*0.22;
       ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
       ctx.fillStyle = 'rgba(180,210,255,1)'; ctx.fill();
     }
@@ -380,11 +396,10 @@
   draw();
   addEventListener('resize', setSize);
 
-  /* Floating glow — self-animating (no cursor follow) */
+  /* Floating glow — self-animating */
   const glow=$('glow'); let t=0;
   (function animateGlow(){
     if(glow){
-      // Slightly smaller motion on mobile so it feels calmer
       const amp = isTouch ? 26 : 35;
       const x = 50 + amp*Math.sin(t*0.0004);
       const y = 50 + amp*Math.cos(t*0.00025);
