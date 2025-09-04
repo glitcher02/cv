@@ -378,7 +378,7 @@ h3{
     const W=innerWidth, H=Math.max(document.documentElement.scrollHeight, innerHeight);
     if(W!==w || H!==h){
       w=c.width=W; h=c.height=H;
-      const density=isTouch?9000:6000, count=Math.max(isTouch?250:375, Math.floor(w*h/density));
+      const density=isTouch?9000:6000, count=Math.max(isTouch?400:800, Math.floor(w*h/density));
       parts=Array.from({length:count},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.8+.4,phase:Math.random()*6.283}));
     }
   }
